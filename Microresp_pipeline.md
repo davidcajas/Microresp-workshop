@@ -192,31 +192,6 @@ for (i in 1:length(excel_sheets(sourcefile))) {
 }
 ```
 
-    ## New names:
-    ## New names:
-    ## New names:
-    ## New names:
-    ## New names:
-    ## New names:
-    ## New names:
-    ## New names:
-    ## New names:
-    ## New names:
-    ## New names:
-    ## New names:
-    ## • `` -> `...1`
-    ## • `` -> `...2`
-
-    ## Warning: Expected 4 pieces. Missing pieces filled with `NA` in 1 rows [1].
-
-    ## New names:
-    ## New names:
-    ## New names:
-    ## New names:
-    ## New names:
-    ## • `` -> `...1`
-    ## • `` -> `...2`
-
 ``` r
 # list all created metadata dataframes so they can be easily called back
 mdfs <- mixedsort(ls(pattern = "^mr\\d+_meta$"))
@@ -498,288 +473,6 @@ for (i in dfs_c) {
 }
 ```
 
-    ## [1] "Model for mr1_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a  -0.5162     0.1499  -3.444 0.001440 ** 
-    ## b  -1.5165     0.4118  -3.683 0.000732 ***
-    ## d  -3.3082     0.2023 -16.356  < 2e-16 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.3825 on 37 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 7 
-    ## Achieved convergence tolerance: 4.905e-06
-    ## 
-    ## [ Error fitting model for mr2_c using default algorithm ] :
-    ##  singular gradient 
-    ## [1] "Model for mr2_c successful using port algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a  -2.2571     2.4432  -0.924    0.372    
-    ## b  -1.0164     1.4207  -0.715    0.487    
-    ## d  -1.1573     0.1499  -7.721 3.29e-06 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.6946 on 13 degrees of freedom
-    ## 
-    ## Algorithm "port", convergence message: relative convergence (4)
-    ## 
-    ## [1] "Model for mr3_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a -0.61938    0.08704  -7.116 7.86e-06 ***
-    ## b -2.23224    0.32930  -6.779 1.30e-05 ***
-    ## d -4.05357    0.15853 -25.570 1.68e-12 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.1324 on 13 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 6 
-    ## Achieved convergence tolerance: 6.371e-08
-    ## 
-    ## [1] "Model for mr4_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a -0.19868    0.06878  -2.888   0.0127 *  
-    ## b -0.60458    0.08670  -6.973 9.72e-06 ***
-    ## d -4.32954    0.06248 -69.297  < 2e-16 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.1757 on 13 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 5 
-    ## Achieved convergence tolerance: 8.11e-06
-    ## 
-    ## [1] "Model for mr5_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a -0.62129    0.06614  -9.394 3.70e-07 ***
-    ## b -2.03125    0.22314  -9.103 5.29e-07 ***
-    ## d -3.50143    0.09519 -36.785 1.58e-14 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.1 on 13 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 7 
-    ## Achieved convergence tolerance: 2.386e-06
-    ## 
-    ## [1] "Model for mr6_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a -0.26260    0.06691  -3.925  0.00174 ** 
-    ## b -0.84022    0.10972  -7.658  3.6e-06 ***
-    ## d -4.35590    0.07485 -58.192  < 2e-16 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.1626 on 13 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 5 
-    ## Achieved convergence tolerance: 5.743e-06
-    ## 
-    ## [1] "Model for mr7_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a  -1.2984     0.2534  -5.123 0.000196 ***
-    ## b  -7.6044     3.0289  -2.511 0.026062 *  
-    ## d  -6.0489     1.2112  -4.994 0.000245 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.2247 on 13 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 5 
-    ## Achieved convergence tolerance: 4.036e-06
-    ## 
-    ## [1] "Model for mr8_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a  -1.3801     0.2098  -6.579 1.77e-05 ***
-    ## b  -5.4077     1.4840  -3.644  0.00297 ** 
-    ## d  -3.9367     0.4468  -8.812 7.64e-07 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.1515 on 13 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 6 
-    ## Achieved convergence tolerance: 1.258e-06
-    ## 
-    ## [1] "Model for mr9_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a  -0.9041     0.2068  -4.372 0.000756 ***
-    ## b  -4.0341     1.3017  -3.099 0.008462 ** 
-    ## d  -5.2755     0.6334  -8.329 1.43e-06 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.249 on 13 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 7 
-    ## Achieved convergence tolerance: 2.052e-06
-    ## 
-    ## [1] "Model for mr10_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a  -1.0449     0.2030  -5.148 6.74e-05 ***
-    ## b  -2.6504     0.7011  -3.781  0.00137 ** 
-    ## d  -3.4763     0.2513 -13.832 4.96e-11 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.225 on 18 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 8 
-    ## Achieved convergence tolerance: 3.371e-06
-    ## 
-    ## [1] "Model for mr11_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a -0.63193    0.07548  -8.372 1.27e-07 ***
-    ## b -1.98046    0.26051  -7.602 5.03e-07 ***
-    ## d -4.13416    0.13230 -31.249  < 2e-16 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.1267 on 18 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 6 
-    ## Achieved convergence tolerance: 1.194e-06
-    ## 
-    ## [1] "Model for mr12_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a  -2.1963     0.2567  -8.557 9.27e-08 ***
-    ## b -34.7089    23.7458  -1.462    0.161    
-    ## d -14.2587     7.7123  -1.849    0.081 .  
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.1221 on 18 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 5 
-    ## Achieved convergence tolerance: 5.24e-07
-    ## 
-    ## [ Error fitting model for mr13_c using default algorithm ] :
-    ##  singular gradient 
-    ## [ Error fitting model for mr13_c using port algorithm ] :
-    ##  Convergence failure: singular convergence (7) 
-    ## [ Error fitting model for mr13_c using plinear algorithm ] :
-    ##  singular matrix 'a' in solve 
-    ## [ Error: Failed to fit model for mr13_c using all algorithms. Skipping. ]
-
-    ## Warning in rm(df, i, m, algorithm, algorithms): object 'm' not found
-
-    ## [1] "Model for mr14_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a -0.49432    0.08442  -5.856 1.52e-05 ***
-    ## b -1.62958    0.26731  -6.096 9.26e-06 ***
-    ## d -3.34875    0.11885 -28.177 2.42e-16 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.1616 on 18 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 7 
-    ## Achieved convergence tolerance: 4.897e-07
-    ## 
-    ## [1] "Model for mr15_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a  -0.9096     0.1408  -6.462 4.43e-06 ***
-    ## b  -3.9693     0.9425  -4.212 0.000524 ***
-    ## d  -4.2796     0.3782 -11.316 1.29e-09 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.1618 on 18 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 4 
-    ## Achieved convergence tolerance: 5.002e-06
-    ## 
-    ## [1] "Model for mr16_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a -0.78746    0.08451  -9.318 2.62e-08 ***
-    ## b -3.25024    0.47983  -6.774 2.40e-06 ***
-    ## d -4.13635    0.20486 -20.191 8.17e-14 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.1156 on 18 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 6 
-    ## Achieved convergence tolerance: 7.702e-07
-    ## 
-    ## [1] "Model for mr17_c successful using default algorithm:"
-    ## 
-    ## Formula: CO2_per ~ a + b/(1 + d * AAdjusted)
-    ## 
-    ## Parameters:
-    ##   Estimate Std. Error t value Pr(>|t|)    
-    ## a -0.49432    0.08442  -5.856 1.52e-05 ***
-    ## b -1.62958    0.26731  -6.096 9.26e-06 ***
-    ## d -3.34875    0.11885 -28.177 2.42e-16 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.1616 on 18 degrees of freedom
-    ## 
-    ## Number of iterations to convergence: 7 
-    ## Achieved convergence tolerance: 4.897e-07
 
 It is possible to export a model for later use (ie: a calibration plate)
 
@@ -912,56 +605,6 @@ merged_samples$plate <- rep(excel_sheets(sourcefile), times = sapply(samples_lis
 rm(samples_list) # remove the list object
 head(merged_samples)
 ```
-
-    ##          sample well A570_0h A570_6h row col     plant              soil
-    ## mr1_s.49     S4   A9   1.539   1.046   A   9 Faba bean   Sandy high Phos
-    ## mr1_s.50     S3  A10   1.504   1.100   A  10 Faba bean    Sandy low Phos
-    ## mr1_s.51     S2  A11   1.501   1.105   A  11 Faba bean Sandy not managed
-    ## mr1_s.52     S1  A12   1.448   1.116   A  12 Faba bean Sandy not managed
-    ## mr1_s.61     S4   B9   1.534   0.653   B   9 Faba bean   Sandy high Phos
-    ## mr1_s.62     S3  B10   1.516   1.078   B  10 Faba bean    Sandy low Phos
-    ##                         treatment replicate origin_location    soil_texture
-    ## mr1_s.49      Disease suppression         1        Hoge eng            Sand
-    ## mr1_s.50                  Control         1           Joppe Sandy clay loam
-    ## mr1_s.51      Disease suppression         1     Droevendaal      Loamy sand
-    ## mr1_s.52 Phosphate solubilisation         1     Droevendaal      Loamy sand
-    ## mr1_s.61      Disease suppression         1        Hoge eng            Sand
-    ## mr1_s.62                  Control         1           Joppe Sandy clay loam
-    ##          CaCO3_perc NOM_perc  pH P-CaCl2_mgP/kg P-AL_mgP/kg applied_product
-    ## mr1_s.49        0.0      1.1 5.5            5.4       402.0    Compete Plus
-    ## mr1_s.50        0.5      7.9 5.4            0.3        13.1      No product
-    ## mr1_s.51        0.4      4.7 4.6            0.7       100.0    Compete Plus
-    ## mr1_s.52        0.4      4.7 4.6            0.7       100.0      NuelloPhos
-    ## mr1_s.61        0.0      1.1 5.5            5.4       402.0    Compete Plus
-    ## mr1_s.62        0.5      7.9 5.4            0.3        13.1      No product
-    ##              target_function         active_principle_1 active_principle_2
-    ## mr1_s.49 Disease suppression Bacillus amyloliquefaciens   Bacillus pumilus
-    ## mr1_s.50                <NA>                       <NA>               <NA>
-    ## mr1_s.51 Disease suppression Bacillus amyloliquefaciens   Bacillus pumilus
-    ## mr1_s.52     Nutrient supply    Pseudomonas fluorescens               <NA>
-    ## mr1_s.61 Disease suppression Bacillus amyloliquefaciens   Bacillus pumilus
-    ## mr1_s.62                <NA>                       <NA>               <NA>
-    ##          active_principle_3     active_principle_4      active_principle_5
-    ## mr1_s.49  Bacillus subtilis Bacillus licheniformis Azotobacter chroococcum
-    ## mr1_s.50               <NA>                   <NA>                    <NA>
-    ## mr1_s.51  Bacillus subtilis Bacillus licheniformis Azotobacter chroococcum
-    ## mr1_s.52               <NA>                   <NA>                    <NA>
-    ## mr1_s.61  Bacillus subtilis Bacillus licheniformis Azotobacter chroococcum
-    ## mr1_s.62               <NA>                   <NA>                    <NA>
-    ##              active_principle_6    active_principle_7 active_principle_8
-    ## mr1_s.49 Trichoderma atroviride Trichoderma harzianum               <NA>
-    ## mr1_s.50                   <NA>                  <NA>               <NA>
-    ## mr1_s.51 Trichoderma atroviride Trichoderma harzianum               <NA>
-    ## mr1_s.52                   <NA>                  <NA>               <NA>
-    ## mr1_s.61 Trichoderma atroviride Trichoderma harzianum               <NA>
-    ## mr1_s.62                   <NA>                  <NA>               <NA>
-    ##          active_principle_9 AAdjusted   CO2_per Respiration_rate  plate
-    ## mr1_s.49               <NA> 0.9550970 0.1859916        0.3638966 Test_3
-    ## mr1_s.50               <NA> 1.0277779 0.1156414        0.2262549 Test_3
-    ## mr1_s.51               <NA> 1.0345131 0.1098292        0.2148832 Test_3
-    ## mr1_s.52               <NA> 1.0830538 0.0709064        0.1387299 Test_3
-    ## mr1_s.61               <NA> 0.5981942 1.0329617        2.0210120 Test_3
-    ## mr1_s.62               <NA> 0.9992496 0.1415056        0.2768587 Test_3
 
 Export the fully processed, unfiltered dataset:
 
@@ -1099,16 +742,6 @@ ggplot(mr1, aes(y = CO2_per, x = AAdjusted)) +
   labs(x = "Normalised A570", y = "Theoretical CO2 concentration (%)", title = "calibration curve")
 ```
 
-    ## Warning: `geom_hline()`: Ignoring `mapping` because `yintercept` was provided.
-
-    ## Warning: The shape palette can deal with a maximum of 6 discrete values because more
-    ## than 6 becomes difficult to discriminate
-    ## ℹ you have requested 17 values. Consider specifying shapes manually if you need
-    ##   that many have them.
-
-    ## Warning: Removed 794 rows containing missing values or values outside the scale range
-    ## (`geom_point()`).
-
 ![](Microresp_pipeline_files/figure-gfm/unnamed-chunk-22-2.png)<!-- -->
 
 ### 2.2) Plot samples
@@ -1155,14 +788,6 @@ ggplot(filter(merged_samples, sample %in% id_samples_below_0), aes(x = sample, y
   theme_prism() + 
   labs(x = "Sample", y = "CO2 concentration (%)")
 ```
-
-    ## Warning: The shape palette can deal with a maximum of 6 discrete values because more
-    ## than 6 becomes difficult to discriminate
-    ## ℹ you have requested 7 values. Consider specifying shapes manually if you need
-    ##   that many have them.
-
-    ## Warning: Removed 5 rows containing missing values or values outside the scale range
-    ## (`geom_point()`).
 
 ![](Microresp_pipeline_files/figure-gfm/unnamed-chunk-23-2.png)<!-- -->
 
@@ -1263,8 +888,6 @@ print("Dataset was loaded from microresp_processed.rds file")
 }
 ```
 
-    ## [1] "Dataset was already loaded"
-
 ### 3.1) Sub-setting like crazy: Relevant filters based on analyses performed in 2)
 
 #### 3.1.1) Filter out unwanted reads and group data by relevant variables
@@ -1308,24 +931,6 @@ if (identical(working_samples$sample,working_meta$sample)) { # First, check if t
 
 head(working_data)
 ```
-
-    ## # A tibble: 6 × 32
-    ## # Groups:   soil, treatment, plant [6]
-    ##   sample A570_0h A570_6h AAdjusted CO2_per Respiration_rate well  row   col  
-    ##   <chr>    <dbl>   <dbl>     <dbl>   <dbl>            <dbl> <chr> <chr> <fct>
-    ## 1 S100      1.43   1.12       1.10  0.0588            0.115 B4    B     4    
-    ## 2 S101      1.34   0.998      1.05  0.0954            0.187 C7    C     7    
-    ## 3 S102      1.36   1.03       1.06  0.0863            0.169 C4    C     4    
-    ## 4 S103      1.36   1.01       1.04  0.103             0.201 D8    D     8    
-    ## 5 S104      1.35   0.969      1.01  0.129             0.253 D4    D     4    
-    ## 6 S105      1.44   1.06       1.04  0.114             0.224 E8    E     8    
-    ## # ℹ 23 more variables: plant <chr>, soil <chr>, treatment <fct>,
-    ## #   replicate <chr>, origin_location <chr>, soil_texture <chr>,
-    ## #   CaCO3_perc <dbl>, NOM_perc <dbl>, pH <dbl>, `P-CaCl2_mgP/kg` <dbl>,
-    ## #   `P-AL_mgP/kg` <dbl>, applied_product <fct>, target_function <chr>,
-    ## #   active_principle_1 <chr>, active_principle_2 <chr>,
-    ## #   active_principle_3 <chr>, active_principle_4 <chr>,
-    ## #   active_principle_5 <chr>, active_principle_6 <chr>, …
 
 #### 3.1.3) Export biologically relevant dataset, with filtered noise and averaged technical replicates
 
@@ -1375,8 +980,6 @@ ggplot(filter(working_data, plant == plant_data$label[1]) , aes(x = origin_locat
   labs(x = "", y = expression(paste("Respiration rate (", mu, "gCO"[2], "-Cg"^"-1", "h"^"-1", ")"))) 
 ```
 
-    ## Warning: Removed 1 row containing non-finite outside the scale range
-    ## (`stat_boxplot()`).
 
 ![](Microresp_pipeline_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
@@ -1402,26 +1005,11 @@ anova <- aov(Respiration_rate ~ plant * treatment * soil, data = working_data)
 summary(anova)
 ```
 
-    ##                       Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## plant                  2  2.216  1.1082  17.258 1.68e-07 ***
-    ## treatment              4  0.049  0.0123   0.192    0.942    
-    ## soil                   3  4.484  1.4946  23.277 1.61e-12 ***
-    ## plant:treatment        8  0.071  0.0089   0.138    0.997    
-    ## plant:soil             6  0.573  0.0954   1.486    0.186    
-    ## treatment:soil        12  0.191  0.0159   0.247    0.995    
-    ## plant:treatment:soil  24  0.303  0.0126   0.196    1.000    
-    ## Residuals            157 10.081  0.0642                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
 ``` r
 # Check assumptions (important!)
 # a. Normality of residuals
 plot(anova, 2) # Q-Q plot
 ```
-
-    ## Warning: not plotting observations with leverage one:
-    ##   99
 
 ![](Microresp_pipeline_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
@@ -1430,21 +1018,6 @@ plot(anova, 2) # Q-Q plot
 library(car)
 ```
 
-    ## Loading required package: carData
-    ## 
-    ## Attaching package: 'car'
-    ## 
-    ## The following object is masked from 'package:purrr':
-    ## 
-    ##     some
-    ## 
-    ## The following object is masked from 'package:gtools':
-    ## 
-    ##     logit
-    ## 
-    ## The following object is masked from 'package:dplyr':
-    ## 
-    ##     recode
 
 ``` r
 leveneTest(Respiration_rate ~ plant * treatment * soil, data = working_data)
@@ -1462,5 +1035,3 @@ leveneTest(Respiration_rate ~ plant * treatment * soil, data = working_data)
 # length(unique(working_samples$sample)) # How many unique samples are present in the final dataset?
 unique(working_data$plant)
 ```
-
-    ## [1] "Bare soil"   "Faba bean"   "Mixed grass"
