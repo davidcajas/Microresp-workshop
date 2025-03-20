@@ -46,7 +46,7 @@ the script file to properly run:
 
 Now let’s get to it…
 
-## 0) Set up R session
+## 0) Data import
 
 ### 0.1) Working directory and packages
 
