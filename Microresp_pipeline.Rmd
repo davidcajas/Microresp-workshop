@@ -39,7 +39,7 @@ This R script expects the following files to be in the same folder as the script
 
 Now let's get to it...
 
-## 0) Set up R session
+## 0)  Data import
 
 ### 0.1) Working directory and packages
 
