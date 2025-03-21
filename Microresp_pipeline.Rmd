@@ -85,7 +85,7 @@ if (length(need_install) > 0) {
 
 ### 0.2) Importing working data
 
-This chunk imports all pages inside the "Results_microresp_Calc.xlsx" excel file as dataframes of 4 columns and 96 rows, replacing the names of the rows for standardised ones
+This chunk imports all pages inside the "Results_microresp_Calc.xlsx" excel file as dataframes of 4 columns and 97 rows, replacing the names of the rows for standardised ones
 
 IMPORTANT: NOTE THAT THIS CODE ASSUMES THE COLUMNS ARE IN A PARTICULAR ORDER:
 
@@ -111,7 +111,7 @@ sourcefile <- "Results_microresp_Calc.xlsx"
 for (i in 1:length(excel_sheets(sourcefile))) {
   # Import data
   
-  df <- read_excel(sourcefile, sheet = i, range = "A1:E96", col_types = c("text", "skip", "text", "numeric", "numeric")) # import columns A to E and rows 1 to 96 from sheet i, skipping the second column and the other 4 in format chr, chr, int, int
+  df <- read_excel(sourcefile, sheet = i, range = "A1:E97", col_types = c("text", "skip", "text", "numeric", "numeric")) # import columns A to E and rows 1 to 97 from sheet i, skipping the second column and the other 4 in format chr, chr, int, int
   
   # Small adjustments
   
@@ -145,7 +145,7 @@ library(tidyr)
 for (i in 1:length(excel_sheets(sourcefile))) {
   # Import data
   
-  df <- read_excel(sourcefile, sheet = i, range = "I1:J96", col_names = FALSE, col_types = c("text", "text")) # import columns A to E and rows 1 to 96 from sheet i, skipping the second column and the other 4 in format chr, chr, int, int
+  df <- read_excel(sourcefile, sheet = i, range = "I1:J97", col_names = FALSE, col_types = c("text", "text")) # import columns A to E and rows 1 to 97 from sheet i, skipping the second column and the other 4 in format chr, chr, int, int
   
   # Delete NA rows
   df <- df[complete.cases(df), ]
