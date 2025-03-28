@@ -33,13 +33,13 @@ This R script expects the following files to be in the same folder as the script
     -   Column "A" values on each page are expected to match at lease 1 of the variables within the Column "J" in "Results_microresp_Calc.xlsx" file.
     -   The number of pages of this file should correspond to the number of variables in the identifiers contained in the column "J" in "Results_microresp_Calc.xlsx" file.
 -   "co2cal.xlsx" as a spreadsheet of 2 columns, where:
-    -   Column "A" is expected to match the sample labels in column "C" of "experiment_metadata.xlsx" file for the calibration points.
+    -   Column "A" is expected to match the sample labels in column "C" of "Results_microresp_Calc.xlsx" file for the calibration points.
     -   Column "B" is expected to contain the %CO2 values for those points.
 -   "required_packages.rds" is an R object file containing the list of packages required to run this script.
 
 Now let's get to it...
 
-## 0)  Data import
+## 0) Data import
 
 ### 0.1) Working directory and packages
 
@@ -329,6 +329,8 @@ for (i in dfs) {
 }
 ```
 
+### 1.2) Fitting a model
+
 For easier management, each Microresp dataset will be split into a calibration (to fit the model) and a sample subsets (to analyse later).
 
 ```{r}
@@ -336,9 +338,11 @@ For easier management, each Microresp dataset will be split into a calibration (
 
 for (i in dfs) {
   df <- get(i) # get the object
-  
+
   is_sample <- grepl("^S[0-9]+$", df$sample) # logical vector where SX values are TRUE and the rest, FALSE
-  cal <- df$sample %in% c(paste0("C", 1:20),"H2O") # logical vector where CX and H2O values are TRUE and the rest, FALSE
+  cal <- df$sample %in% c(paste0("C", 1:20)
+                          ,"H2O" # Include/Exclude H2O from calibration set
+                          ) # logical vector where CX and H2O values are TRUE and the rest, FALSE
   
   # Create new dataframes based on the boolean vector just created
   
@@ -356,7 +360,7 @@ for (i in dfs) {
 }
 ```
 
-### 1.2) Fitting a model
+### 
 
 #### 1.2.1) Create auxiliary objects
 
@@ -380,6 +384,9 @@ The reason for the loops are as follows:
 3.  The third loop (tryCatch{}) gives a more robust approach to errors. tryCatch will "try" the code with the first algorithm defined in the previous loop. If it succeeds, it will jump directly to report the found model. If not, it will create a warning message.
 
 ```{r}
+expected_models <- data_frame(paste0("mod_", dfs_c),excel_sheets(sourcefile),rep(FALSE,length(dfs_c))) # Create a dataframe containing the names of the expected models, the excel sheet for the data they fir to and if they were successfully obtained (for new, this column is set to FALSE)
+colnames(expected_models) <- c("model","datasheet","obtained")
+
 for (i in dfs_c) { 
   # this approach has 3 nested loops. This is the [1]
   
@@ -388,7 +395,6 @@ for (i in dfs_c) {
   # Fit model: Nested for() [2] loop was implemented so different optimisation algorithms can by tried
   
   algorithms <- c("default", "port", "plinear") # List of algorithms to try
-  model_found <- FALSE # Flag to track if a model was successfully fit
   
   for (algorithm in algorithms) { 
     
@@ -402,7 +408,6 @@ for (i in dfs_c) {
              start = list(a = -2, b = -10, d = -6.8), # the values for a, b and d used as start are taken from the manual
              control = nls.control(minFactor = 1e-10, maxiter = 1e7),
              algorithm = algorithm) # Here is the list of algorithms created in the first for() loop
-    model_found <- TRUE # If successful, the value for this flag will be changed to TRUE
     
     break # If the previous code lines did not halt, this line will break out of the [2] algorithm loop, effectively stopping it.
     
@@ -422,7 +427,8 @@ for (i in dfs_c) {
     print(paste("Model for", i, "successful using",algorithm,"algorithm:"))
     print(summary(m))
     
-    assign(paste0("mod_", i), m)
+    assign(paste0("mod_", i), m) # Save the model with a given name based on the calibration dataframe name
+    expected_models$obtained[str_which(dfs_c, i)] <- TRUE # Flag the model as obtained
   } else { # If a model does not exist, print an error message.
     cat("[ Error: Failed to fit model for", i, "using all algorithms. Skipping. ]\n")
   }
@@ -447,7 +453,7 @@ If desired, a specific model can be imported here:
 # mod_import <- readRDS("model3.rds")
 ```
 
-#### 1.3.1) Perform calculations based on a given model
+#### 1.3.1) Calculate based on a reference model
 
 The constant values (A, B and D) from a given active model are used to calculate %CO2 on the samples based on the same formula stated before.
 
@@ -464,17 +470,47 @@ for (i in dfs_s) {
   
   df$CO2_per <- coef(active_model)["a"] + coef(active_model)["b"] / (1 + coef(active_model)["d"] * df$AAdjusted) 
   
+  # Add a stamp to recognise which model was used
+  
+  df$microresp_model <- rep(as.character(quote(active_model)), nrow(df))
+  
   # Wrap up
   
   assign(i,df) # write back on the original dataframe
   rm(df,i) # remove auxiliary objects
 }
+```
 
-# Calculate %CO2 based on their own plate model
+#### 1.3.2) Calculate based on internal models from each plate
 
-# mr2_s$CO2_per <- coef(mod_mr1_c)["a"] + coef(mod_mr1_c)["b"] / (1 + coef(mod_mr1_c)["d"] * mr2_s$AAdjusted)
-# mr3_s$CO2_per <- coef(mod_mr1_c)["a"] + coef(mod_mr1_c)["b"] / (1 + coef(mod_mr1_c)["d"] * mr2_s$AAdjusted)
-# mr4_s$CO2_per <- coef(mod_mr1_c)["a"] + coef(mod_mr1_c)["b"] / (1 + coef(mod_mr1_c)["d"] * mr2_s$AAdjusted)
+```{r, eval=FALSE}
+# For which plate numbers do you want to use the internal model?
+plates_in_model <- c(3,5)
+
+# Define some auxiliary variables
+id_in_models <- which(expected_models$datasheet %in% paste0("Plate ", plates_in_model)) # Find the row position for the selected plate numbers. This position will be the same in the expected_models list and in the dfs_s list
+
+# Perform recalculation only for selected plates
+
+for (i in id_in_models) {
+  # Get the objects
+  df <- get(dfs_s[i])
+  in_model <- get(expected_models$model[i])
+  
+  # Apply formula
+  
+  df$CO2_per <- coef(in_model)["a"] + coef(in_model)["b"] / (1 + coef(in_model)["d"] * df$AAdjusted)
+
+  # Add a stamp to recognise which model was used
+  
+  df$microresp_model <- rep(as.character(expected_models$datasheet[i]), nrow(df))
+  
+  # Wrap up
+  
+  assign(dfs_s[i],df) # write back on the original dataframe
+  rm(df,i, in_model) # remove auxiliary objects
+}
+rm(plates_in_model, id_in_models)
 ```
 
 ### 1.4) Estimate microbial respiration rates
@@ -571,7 +607,7 @@ The exported dataset contains:
 
 -   **Metadata** for all reads (provided sample IDs in results xlsx file match variables from metadata xlsx file).
 
--   Estimation of **%CO2** and **microbial respiration rate** for each measurement based on a specific model selected in step 1.3.1).
+-   Estimation of $\%CO_2$ and **microbial respiration rate** for each measurement based on a specific model selected in step 1.3.1).
 
 ## 2) Plotting data and model
 
@@ -582,164 +618,154 @@ library(ggplot2)
 library(ggpubr)
 library(tidyr)
 library(ggprism)
+library(plotly)
 
-# define some auxiliary variables
+# Color palette for this curve set
 
-active_model_x <- active_model[["call"]][["formula"]][[3]][[3]][[3]][[2]][[3]][[3]] # Extracts the name used for the X variable in the model (the absorbance)
-active_model_y <- active_model[["call"]][["formula"]][[2]] # Extracts the name used for the Y variable in the model (the %CO2)
-active_model_train_data <- active_model$data # Extracts the name of the dataframe used to train the model
+## Starting palette
 
-## Color palette for this curve set
-
-# Starting palette
 cal_palette <- c("#9E0142", "#D53E4F", "#F46D43", "#FDAE61", "#FEE08B", "#E6F598", "#ABDDA4", "#66C2A5", "#3288BD", "#5E4FA2")
-# Create color function from that palette
+
+## Create color function from that palette
+
 col_fn <- colorRampPalette(cal_palette)
-# Create a given number of colors from the color function
-cal_palette <- col_fn(10)
-# Add names to the colors
-names(cal_palette) <- paste0("con_plate",1:length(cal_palette))
-# Add samples and main calibration curve
-# Add "soil" and "cal"
+
+## Create a given number of colors from the color function
+
+cal_palette <- col_fn(length(excel_sheets(sourcefile)[-1]))
+
+## Add names to the colors
+
+names(cal_palette) <- paste0(excel_sheets(sourcefile)[-1])
+
+## Add samples and main calibration curve
+## Add "soil" and "cal"
+
 cal_palette["soil"] <- "#FF0000"  # Red
-cal_palette["cal"] <- "#0000FF"   # Blue
-  
-  # c("cal_plate" = "#47D7AC", 
-  #            "soil" = "#2761C4", 
-  #            "con_plate1" = "#CC4389", 
-  #            "con_plate2" = "#EB8900", 
-  #            "con_plate3" = "#FAD847")
+cal_palette["active model"] <- "#0000FF"   # Blue
 
-# Only curves plot
+# All curves plot.
 
-ggplot(mr1, aes(y = CO2_per, x = AAdjusted)) +
-  # Add calibration points layer
-  geom_point(aes(color = "cal"), data = mr1_c) +
-  # Add calibration model line layer
-  geom_line(aes(y = fitted(mod_mr1_c), # gets the fitted data for the active model
-                color = "cal"), 
-            data = mr1_c) + # gets the dataframe that was used to train the model
-  # Add calibration points layer
-  geom_point(aes(color = "con_plate1"), data = mr2_c) +
-  # Add calibration model line layer
-  geom_line(aes(y = fitted(mod_mr2_c), # gets the fitted data for the active model
-                color = "con_plate1"),
-            data = mr2_c) + # gets the dataframe that was used to train the model
-  # Add calibration points layer
-  geom_point(aes(color = "con_plate2"), data = mr3_c) +
-  # Add calibration model line layer
-  geom_line(aes(y = fitted(mod_mr3_c), # gets the fitted data for the active model
-                color = "con_plate2"), 
-            data = mr3_c) + # gets the dataframe that was used to train the model
-  # Add calibration points layer
-  geom_point(aes(color = "con_plate3"), data = mr4_c) +
-  # Add calibration model line layer
-  geom_line(aes(y = fitted(mod_mr4_c), # gets the fitted data for the active model
-                color = "con_plate3"), 
-            data = mr4_c) + # gets the dataframe that was used to train the model
-  # Add calibration points layer
-  geom_point(aes(color = "con_plate4"), data = mr5_c) +
-  # # Add calibration model line layer
-  geom_line(aes(y = fitted(mod_mr5_c), # gets the fitted data for the active model
-                color = "con_plate4"),
-            data = mr5_c) + # gets the dataframe that was used to train the model
-  # Add calibration points layer
-  geom_point(aes(color = "con_plate5"), data = mr6_c) +
-  # Add calibration model line layer
-  geom_line(aes(y = fitted(mod_mr6_c), # gets the fitted data for the active model
-                color = "con_plate5"),
-            data = mr6_c) + # gets the dataframe that was used to train the model
-  # Add calibration points layer
-  geom_point(aes(color = "con_plate6"), data = mr7_c) +
-  # Add calibration model line layer
-  geom_line(aes(y = fitted(mod_mr7_c), # gets the fitted data for the active model
-                color = "con_plate6"),
-            data = mr7_c) + # gets the dataframe that was used to train the model
-  # Add a line at %CO2 = 0
+## First, create the main plot, with the active model
+p <- ggplot(mr1, aes(y = CO2_per, x = AAdjusted)) +
+  geom_point(aes(color = "active model"), data = get(dfs_c[1])) +
+  geom_line(aes(y = fitted(get(expected_models$model[1])), color = "active model"), data = get(dfs_c[1])) +
   geom_hline(yintercept = 0, color = "red") + 
   scale_color_manual(values = cal_palette) +
   theme_prism() + 
   labs(x = "Normalised A570", y = "Theoretical CO2 concentration (%)", title = "Calibration curves")
 
-## Plot for curve from active model and all samples
+## Then, iteratively add layers for the other models
+for (i in 2:length(dfs_c)) {
 
-ggplot(mr1, aes(y = CO2_per, x = AAdjusted)) +
+# Add calibration data points from each sheet
+  p <- p + geom_point(aes_string(color = shQuote(excel_sheets(sourcefile)[i])), data = get(dfs_c[i]))
+
+# Add line for only EXISTING models
+  if(expected_models$obtained[i]) {
+   p <- p + geom_line(aes_string(y = fitted(get(expected_models$model[i])), color = shQuote(excel_sheets(sourcefile)[i])), data = get(dfs_c[i])) 
+  }
+
+# Note: aes() had to be replaced with aes_string() so the color function gets evaluated during each iteration instead of at the end of the loop. shQuote() was added to ensure the names with spaces are handled properly.
+rm(i)
+}
+
+## Change the name to something meaningful
+plot_models <- p 
+rm(p)
+
+## Plot as interactive, so you can choose which models to see
+ggplotly(plot_models)
+```
+
+Based on this plot, it is advisable to:
+
+-   Filter out Plate 1 and 12.
+
+-   Use the internal calibration model for samples in Plate 3 and 5
+
+### 2.2) Plot active model with samples
+
+```{r}
+# define some auxiliary variables
+
+## Extract the name used for the X variable in the model (the absorbance)
+active_model_x <- active_model[["call"]][["formula"]][[3]][[3]][[3]][[2]][[3]][[3]] 
+
+## Extract the name used for the Y variable in the model (the %CO2)
+active_model_y <- active_model[["call"]][["formula"]][[2]] 
+
+# Plot for curve from active model and all samples
+
+plot_samples_in_model <- ggplot(mr1, aes(y = CO2_per, x = AAdjusted)) +
   # Add calibration points layer
-  geom_point(aes(x = get(active_model_x), # gets the name used for the X variable in the model (the absorbance)
-                 y = get(active_model_y), # gets the fitted data for the active model
-                 color = "cal"), 
-             data = mr1_c) + # gets the dataframe that was used to train the model
+  geom_point(aes(color = "active model"), data = mr1_c) + # gets the dataframe that was used to train the model
   # Add calibration model line layer
-  geom_line(aes(x = get(active_model_x), # gets the name used for the X variable in the model (the absorbance)
-                y = fitted(active_model), # gets the fitted data for the active model
-                color = "cal"), 
-            data = mr1_c) + # gets the dataframe that was used to train the model
+  geom_line(aes(y = fitted(get(expected_models$model[1])), 
+    color = "active model"), data = mr1_c) + # gets the dataframe that was used to train the model
   # Add sample points
-  geom_point(aes(y = CO2_per, x = AAdjusted, color = "soil", shape = plate
+  geom_point(aes(color = "soil", 
+                 shape = plate
                  ), data = merged_samples) +
-  ## Restrict plot window (if wanted)
-  # scale_y_continuous(breaks = seq(-5,30,5), minor_breaks = seq(-5,30,0.5), limits = c(-2,5)) +
-  # scale_x_continuous(breaks = seq(0,10,0.25), limits = c(0.25, 1.5)) +
   # Add a line at %CO2 = 0
   geom_hline(yintercept = 0, color = "red", aes(alpha = 0.5)) + 
   scale_color_manual(values = cal_palette) +
   theme_prism() + 
   labs(x = "Normalised A570", y = "Theoretical CO2 concentration (%)", title = "calibration curve")
+ggplotly(plot_samples_in_model)
 ```
 
-### 2.2) Plot samples
-
-#### 2.2.1) Sanity check per plate
+### 2.3) All samples
 
 ```{r}
-ggplot(filter(merged_samples, 
-              #plate != "Plate 1" & plate != "Test_3"
+plot_all_samples <- ggplot(filter(merged_samples, plate != "Test_3" # Don't consider calibration plate
               )
        , aes(x = sample, y = CO2_per, color = plate)) +
   geom_point() +
+  geom_text(aes(label = rownames(filter(merged_samples, plate != "Test_3"))),
+            vjust = -0.5, hjust = 0.5) + 
   geom_boxplot() +
   geom_hline(yintercept = 0, color = "red") + 
   theme_prism() + 
   labs(x = "Sample", y = "CO2 concentration (%)") 
-  
-  # facet_wrap(~plate, strip.position = "bottom", nrow = 1) +
-  # theme(panel.grid.minor = element_blank(),
-  #       panel.grid.major.x = element_blank(),
-  #       panel.spacing = unit(0,"cm"),
-  #       strip.placement = "outside")
-              
+ggplotly(plot_all_samples)
+```
 
+Based on this plot, it might be advisable to check and filter out specific readings for some samples (eg: S34, reading 19 in dataframe mr4_s).
+
+### 2.4) Sanity check
+
+#### 2.4.1) \<0 $\%CO_2$ values
+
+```{r}
 ## Check how many samples fall in <0 values
 
-samples_below_0 <- filter(merged_samples, CO2_per<0)
-number_wells_below_0 <- nrow(samples_below_0)
-number_samples_below_0 <- length(unique(samples_below_0$sample))
-id_samples_below_0 <- unique(samples_below_0[order(samples_below_0$CO2_per, decreasing = T),"sample"]) # in %CO2 decreasing order
+readings_below_0 <- filter(merged_samples, CO2_per<0)
+number_wells_below_0 <- nrow(readings_below_0)
+number_samples_below_0 <- length(unique(readings_below_0$sample))
+id_samples_below_0 <- unique(readings_below_0[order(readings_below_0$CO2_per, decreasing = T),"sample"]) # in %CO2 decreasing order
 extreme_samples <- rbind(merged_samples[order(merged_samples$CO2_per, decreasing = T)[1],], # Highest value
                          merged_samples[order(merged_samples$CO2_per, decreasing = F)[1],]) # Lowest value
 
 # plot only samples with %CO2 <0
 
-ggplot(filter(merged_samples, sample %in% id_samples_below_0), aes(x = sample, y = CO2_per, shape = plate)) +
+plot_below_0_samples <- ggplot(filter(merged_samples, sample %in% id_samples_below_0), aes(x = sample, y = CO2_per, color = plate)) +
   geom_point() +
   # geom_boxplot() +
   geom_hline(yintercept = 0, color = "red") + 
   theme_prism() + 
   labs(x = "Sample", y = "CO2 concentration (%)")
+ggplotly(plot_below_0_samples)
+```
 
-# Since all samples who's %CO2<0 were from plate 1. This is a heatmap of Plate 1
+Worrying samples:
 
-ggplot(data = rbind(mr2_s), aes(x = col, y = row, fill = CO2_per)) +
-  geom_tile() + 
-  geom_text(aes(label = sample), alpha = 0.3) +
-  scale_fill_gradient2(low = "#A64071", mid = "white", high = "#DEBB58", midpoint = 0) +  
-  theme_minimal() +
-  scale_y_discrete(limits = rev(unique(merged_samples$row))) + # so the A row goes at the top, as in the actual plate
-  scale_x_discrete(position = "top") + # so the col names go on the top, as in the actual plate
-  # scale_y_discrete(sec.axis = dup_axis(name = "Custom Labels", labels = c("Curve 1","Curve 2","Curve 3"))) +
-  coord_fixed()
+#### 2.4.2) Position influence
 
-# Done for all plates
+##### Plate heatmaps
+
+```{r}
+library(gridExtra)
 
 heatmaps_samples <- list()
 
@@ -755,7 +781,7 @@ for (i in 1:length(dfs_s)) {
     theme_minimal() +
     scale_y_discrete(limits = rev(unique(merged_samples$row))) + # so the A row goes at the top, as in the actual plate
     scale_x_discrete(position = "top") + # so the col names go on the top, as in the actual plate
-    # ggtitle(excel_sheets(sourcefile)[i]) +
+    ggtitle(excel_sheets(sourcefile)[i]) +
     coord_fixed() 
     
   
@@ -764,26 +790,25 @@ for (i in 1:length(dfs_s)) {
   rm(df,i) # remove auxiliary objects
 }
 
-# library(gridExtra)
-# grid.arrange(grobs = heatmaps_samples, ncol = 4) 
-# print(heatmaps_samples)
+grid.arrange(grobs = heatmaps_samples, ncol = 4)
 
-ggplot(data = mr3_s, aes(x = col, y = row, fill = CO2_per)) +
-  geom_tile() + 
-  geom_text(aes(label = sample), alpha = 0.3) +
-  scale_fill_gradient2(low = "#A64071", mid = "white", high = "#DEBB58", midpoint = 0) +  
-  theme_minimal() +
-  scale_y_discrete(limits = rev(unique(merged_samples$row))) + # so the A row goes at the top, as in the actual plate
-  scale_x_discrete(position = "top") + # so the col names go on the top, as in the actual plate
-  # scale_y_discrete(sec.axis = dup_axis(name = "Custom Labels", labels = c("Curve 1","Curve 2","Curve 3"))) +
-  coord_fixed() 
-  
+print(heatmaps_samples)
+```
+
+##### Position clustering
+
+```{r}
 # Position dispersion plot
 ggplot(merged_samples, aes(x = well, y = AAdjusted)) +
-  geom_point(aes(color = sample), data = merged_samples) +
-  geom_point(aes(color = sample), data = mr1_c) + 
+  geom_point(aes(color = plate)) +
+  geom_text(aes(label = sample, alpha = 0.3), data = filter(merged_samples, AAdjusted>1.5 | AAdjusted<0.6 )) + 
+  geom_point(data = mr1_c) + 
   labs(y = "Normalised A570")
+```
 
+##### Position heatmap (all samples)
+
+```{r}
 # Position heatmap
 
  ggplot(data = merged_samples, aes(x = col, y = row, fill = AAdjusted)) +
@@ -815,7 +840,12 @@ print("Dataset was loaded from microresp_processed.rds file")
 
 ```{r}
 working_reads <- merged_samples %>%
-  filter(plate != "Plate 1" & plate != "Test_3" & col != "3") %>% # Filtering out Plate 1 and Test 3 plates, and the column next to the calibration curve
+  filter(
+           # col != "3" & # Column next to the calibration curve
+           plate != "Plate 1" & # Calibration failed
+           plate != "Plate 12" & # Calibration failed
+           plate != "Test_3" # Samples were only test
+           ) %>% 
   group_by(soil, treatment, plant) # group by relevant variables
 ```
 
@@ -881,19 +911,66 @@ names(palette_treatments) <- levels(treatment_data$label)
 palette_products <- palette_5col
 names(palette_products) <- levels(treatment_data$applied_product)
 
+# Plot all samples, separated by plant system
+plot_all_resp <- ggplot(working_data , aes(x = soil, y = Respiration_rate, color = treatment)) +
+  # geom_point() +
+  geom_boxplot() +
+  facet_wrap(~plant) + 
+  # geom_col(stat = "identity", position = "dodge") +
+  theme_prism() + 
+  scale_color_manual(values = palette_treatments) +
+  labs(x = "", y = expression(paste("Respiration rate (", mu, "gCO"[2], "-Cg"^"-1", "h"^"-1", ")"))) 
+plot_all_resp
+```
 
-# palette_treatments <- c("Control" = "#EB8900", 
-#                         "AMF" = "#2761C4", 
-#                         "Disease suppression" = "#47D7AC",  
-#                         "Nitrogen fixation" = "#CC4389", 
-#                         "Phosphate solubilisation" = "#FAD847")
-# 
-# palette_products <- c("No product" = "#EB8900", 
-#                         "MycorGran 2.0" = "#2761C4", 
-#                         "Compete Plus" = "#47D7AC",  
-#                         "Vixeran" = "#CC4389", 
-#                         "NuelloPhos" = "#FAD847")
- 
+```{r}
+
+# Convert to plotly for interactivity
+p_plotly <- ggplotly(plot_all_resp)
+
+# Create a dropdown menu to switch between plants
+plant_options <- unique(working_data$plant)
+
+# Function to update the plot based on selected plant
+update_plot <- function(plant_name) {
+  p_updated <- ggplot(data = subset(working_data, plant == plant_name), aes(x = soil, y = Respiration_rate, color = treatment)) +
+  geom_boxplot() +
+  theme_prism() + 
+  labs(x = "", y = expression(paste("Respiration rate (", mu, "gCO"[2], "-Cg"^"-1", "h"^"-1", ")"))) 
+  
+  return(ggplotly(p_updated))
+}
+
+# Create a list of buttons for the dropdown menu
+buttons <- lapply(plant_options, function(plant_name) {
+  list(
+    method = "update",
+    args = list(list(
+      p_plotly$x$data <- update_plot(plant_name)$x$data,
+      p_plotly$x$layout$title$text <- paste("Respiration Rate by Soil and Treatment (", plant_name, ")")
+    )),
+    label = plant_name
+  )
+})
+
+# Add the dropdown menu to the plotly plot
+p_plotly <- p_plotly %>% layout(
+  updatemenus = list(
+    list(
+      active = 0,
+      buttons = buttons
+    )
+  )
+)
+
+# Display the interactive plot
+p_plotly
+```
+
+### 3.2.2) Respiration rate of a subset
+
+```{r}
+# Plot only a subset
 ggplot(filter(working_data, plant == plant_data$label[1]) , aes(x = origin_location, y = Respiration_rate, color = applied_product)) +
   # geom_point() +
   geom_boxplot() +
