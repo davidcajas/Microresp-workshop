@@ -3,9 +3,9 @@ title: "Microresp pipeline"
 author: "David Rodrigo Cajas"
 date: "`r Sys.Date()`"
 output: 
-  html_document:
-    toc: true
   github_document:
+    toc: true
+  html_document:
     toc: true
 always_allow_html: true
 ---
@@ -354,6 +354,10 @@ for (i in dfs) {
   df.c <- df[cal, ]
   df.s <- df[is_sample, ]
   
+  # Add a column for sample number in the sample dataframes
+  
+  df.s <- mutate(df.s, sample_number = as.numeric(gsub("S", "", sample)))
+  
   # Store new dataframes
   
   assign(paste0(i, "_c"), df.c)
@@ -576,14 +580,14 @@ All samples dataframes can be now merged into one, preserving a label for their 
 # Create an empty list to store the data frames. Don't worry, this is only needed for the following for loop and it will be removed after.
 samples_list <- list()
 
-# Loop through the sample data frames, add them to the (temporary) list and merge all samples data in a new dataframe called 'merged_samples'.
+# Loop through the sample data frames, add them to the (temporary) list and merge all samples data in a new dataframe called 'merged_reads'.
 for (i in dfs_s) {
   df <- get(i) # get the object
   samples_list[[i]] <- df # Add the data frame to the list
   
   # Merge all data frames in the list into a single data frame
   
-  merged_samples <- do.call(rbind, samples_list)
+  merged_reads <- do.call(rbind, samples_list)
   
   # Wrap up
   
@@ -591,17 +595,17 @@ for (i in dfs_s) {
   
 }
 
-merged_samples$plate <- rep(excel_sheets(sourcefile), times = sapply(samples_list, nrow)) # For this line to work, all sheets in the input excel file have to have at least 1 sample and a corresponding "mrx_s" dataframe
+merged_reads$plate <- rep(excel_sheets(sourcefile), times = sapply(samples_list, nrow)) # For this line to work, all sheets in the input excel file have to have at least 1 sample and a corresponding "mrx_s" dataframe
 
 rm(samples_list) # remove the list object
-head(merged_samples)
+head(merged_reads)
 ```
 
 Export the fully processed, unfiltered dataset:
 
 ```{r}
-write.csv(merged_samples, "microresp_processed.csv", row.names = F) # Export as CSV file. The simplest but looses some structure, like factor columns.
-saveRDS(merged_samples,"microresp_processed.rds") # Export RDS file, which is an exact copy of the R object but is only readable by specialised software.
+write.csv(merged_reads, "microresp_processed.csv", row.names = F) # Export as CSV file. The simplest but looses some structure, like factor columns.
+saveRDS(merged_reads,"microresp_processed.rds") # Export RDS file, which is an exact copy of the R object but is only readable by specialised software.
 ```
 
 The exported dataset contains:
@@ -709,7 +713,7 @@ plot_samples_in_model <- ggplot(mr1, aes(y = CO2_per, x = AAdjusted)) +
   # Add sample points
   geom_point(aes(color = "soil", 
                  shape = plate
-                 ), data = merged_samples) +
+                 ), data = merged_reads) +
   # Add a line at %CO2 = 0
   geom_hline(yintercept = 0, color = "red", aes(alpha = 0.5)) + 
   scale_color_manual(values = cal_palette) +
@@ -721,11 +725,11 @@ ggplotly(plot_samples_in_model)
 ### 2.3) All samples
 
 ```{r}
-plot_all_samples <- ggplot(filter(merged_samples, plate != "Test_3" # Don't consider calibration plate
+plot_all_samples <- ggplot(filter(merged_reads, plate != "Test_3" # Don't consider calibration plate
               )
        , aes(x = sample, y = CO2_per, color = plate)) +
   geom_point() +
-  geom_text(aes(label = rownames(filter(merged_samples, plate != "Test_3"))),
+  geom_text(aes(label = rownames(filter(merged_reads, plate != "Test_3"))),
             vjust = -0.5, hjust = 0.5) + 
   geom_boxplot() +
   geom_hline(yintercept = 0, color = "red") + 
@@ -743,16 +747,16 @@ Based on this plot, it might be advisable to check and filter out specific readi
 ```{r}
 ## Check how many samples fall in <0 values
 
-readings_below_0 <- filter(merged_samples, CO2_per<0)
+readings_below_0 <- filter(merged_reads, CO2_per<0)
 number_wells_below_0 <- nrow(readings_below_0)
 number_samples_below_0 <- length(unique(readings_below_0$sample))
 id_samples_below_0 <- unique(readings_below_0[order(readings_below_0$CO2_per, decreasing = T),"sample"]) # in %CO2 decreasing order
-extreme_samples <- rbind(merged_samples[order(merged_samples$CO2_per, decreasing = T)[1],], # Highest value
-                         merged_samples[order(merged_samples$CO2_per, decreasing = F)[1],]) # Lowest value
+extreme_samples <- rbind(merged_reads[order(merged_reads$CO2_per, decreasing = T)[1],], # Highest value
+                         merged_reads[order(merged_reads$CO2_per, decreasing = F)[1],]) # Lowest value
 
 # plot only samples with %CO2 <0
 
-plot_below_0_samples <- ggplot(filter(merged_samples, sample %in% id_samples_below_0), aes(x = sample, y = CO2_per, color = plate)) +
+plot_below_0_samples <- ggplot(filter(merged_reads, sample %in% id_samples_below_0), aes(x = sample, y = CO2_per, color = plate)) +
   geom_point() +
   # geom_boxplot() +
   geom_hline(yintercept = 0, color = "red") + 
@@ -782,7 +786,7 @@ for (i in 1:length(dfs_s)) {
     # scale_fill_gradient(low = "#A64071", high = "#DEBB58") +
     scale_fill_gradient2(low = "#A64071", mid = "white", high = "#DEBB58", midpoint = 0) +
     theme_minimal() +
-    scale_y_discrete(limits = rev(unique(merged_samples$row))) + # so the A row goes at the top, as in the actual plate
+    scale_y_discrete(limits = rev(unique(merged_reads$row))) + # so the A row goes at the top, as in the actual plate
     scale_x_discrete(position = "top") + # so the col names go on the top, as in the actual plate
     ggtitle(excel_sheets(sourcefile)[i]) +
     coord_fixed() 
@@ -802,9 +806,9 @@ print(heatmaps_samples)
 
 ```{r}
 # Position dispersion plot
-ggplot(merged_samples, aes(x = well, y = AAdjusted)) +
+ggplot(merged_reads, aes(x = well, y = AAdjusted)) +
   geom_point(aes(color = plate)) +
-  geom_text(aes(label = sample, alpha = 0.3), data = filter(merged_samples, AAdjusted>1.5 | AAdjusted<0.6 )) + 
+  geom_text(aes(label = sample, alpha = 0.3), data = filter(merged_reads, AAdjusted>1.5 | AAdjusted<0.6 )) + 
   geom_point(data = mr1_c) + 
   labs(y = "Normalised A570")
 ```
@@ -814,11 +818,11 @@ ggplot(merged_samples, aes(x = well, y = AAdjusted)) +
 ```{r}
 # Position heatmap
 
- ggplot(data = merged_samples, aes(x = col, y = row, fill = AAdjusted)) +
+ ggplot(data = merged_reads, aes(x = col, y = row, fill = AAdjusted)) +
   geom_tile() +
   scale_fill_gradient(low = "#A64071", high = "#DEBB58") + 
   theme_minimal() +
-  scale_y_discrete(limits = sort(unique(merged_samples$row), decreasing=T)) + # so the A row goes at the top, as in the actual plate
+  scale_y_discrete(limits = sort(unique(merged_reads$row), decreasing=T)) + # so the A row goes at the top, as in the actual plate
   scale_x_discrete(position = "top") + # so the col names go on the top, as in the actual plate
   coord_fixed() 
 ```
@@ -830,26 +834,53 @@ Later: test effect of the curve with lmer()
 ### 3.0) Import dataset
 
 ```{r}
-if (exists("merged_samples")){
+if (exists("merged_reads")){
   print("Dataset was already loaded")
-  } else { merged_samples <- readRDS("microresp_processed.rds")
+  } else { merged_reads <- readRDS("microresp_processed.rds")
 print("Dataset was loaded from microresp_processed.rds file")
 }
 ```
 
 ### 3.1) Sub-setting like crazy: Relevant filters based on analyses performed in 2)
 
+It is good practice to keep track of the amount of samples in the dataset before filtering
+
+```{r}
+sample_count <- data.frame(Step = c("unfiltered"))
+sample_count$Reads[1] <- nrow(merged_reads)
+sample_count$Samples[1] <- length(unique(merged_reads$sample))
+sample_count$Reads_per_sample[1] <- sample_count$Reads[1]/sample_count$Samples[1]
+for (i in plant_data$label) {
+  sample_count[[i]][1] <- length(unique(filter(merged_reads, plant == i)$sample))
+  rm(i)
+}
+sample_count
+```
+
 #### 3.1.1) Filter out unwanted reads and group data by relevant variables
 
 ```{r}
-working_reads <- merged_samples %>%
+working_reads <- merged_reads %>%
   filter(
            # col != "3" & # Column next to the calibration curve
            plate != "Plate 1" & # Calibration failed
            plate != "Plate 12" & # Calibration failed
+           # plate != "Plate 16" & # Exact replicate of Plate 13 (?)
+           plate != "Plate 17" & # Calibration failed
            plate != "Test_3" # Samples were only test
            ) %>% 
   group_by(soil, treatment, plant) # group by relevant variables
+
+# Update tracker
+sample_count <- add_row(sample_count, Step = "filtered") 
+sample_count$Reads[2] <- nrow(working_reads)
+sample_count$Samples[2] <- length(unique(working_reads$sample))
+sample_count$Reads_per_sample[2] <- sample_count$Reads[2]/sample_count$Samples[2]
+for (i in plant_data$label) {
+  sample_count[[i]][2] <- length(unique(filter(working_reads, plant == i)$sample))
+  rm(i)
+}
+sample_count
 ```
 
 #### 3.1.2) Average multiple Microresp reads from the same sample
@@ -886,6 +917,21 @@ if (identical(working_samples$sample,working_meta$sample)) { # First, check if t
 head(working_data)
 ```
 
+Update the tracker
+
+```{r}
+# Update tracker
+sample_count <- add_row(sample_count, Step = "averaged reads") 
+sample_count$Reads[3] <- nrow(working_data)
+sample_count$Samples[3] <- length(unique(working_data$sample))
+sample_count$Reads_per_sample[3] <- sample_count$Reads[3]/sample_count$Samples[3]
+for (i in plant_data$label) {
+  sample_count[[i]][3] <- length(unique(filter(working_data, plant == i)$sample))
+  rm(i)
+}
+sample_count
+```
+
 #### 3.1.3) Export biologically relevant dataset, with filtered noise and averaged technical replicates
 
 ```{r}
@@ -916,14 +962,22 @@ names(palette_products) <- levels(treatment_data$applied_product)
 
 # Plot all samples, separated by plant system
 plot_all_resp <- ggplot(working_data , aes(x = soil, y = Respiration_rate, color = treatment)) +
-  # geom_point() +
+  # geom_point() + 
   geom_boxplot() +
   facet_wrap(~plant) + 
   # geom_col(stat = "identity", position = "dodge") +
   theme_prism() + 
   scale_color_manual(values = palette_treatments) +
   labs(x = "", y = expression(paste("Respiration rate (", mu, "gCO"[2], "-Cg"^"-1", "h"^"-1", ")"))) 
-plot_all_resp
+plot_all_resp_2 <- ggplot(merged_reads , aes(x = soil, y = Respiration_rate, color = treatment)) +
+  # geom_point() + 
+  geom_boxplot() +
+  facet_wrap(~plant) + 
+  # geom_col(stat = "identity", position = "dodge") +
+  theme_prism() + 
+  scale_color_manual(values = palette_treatments) +
+  labs(x = "", y = expression(paste("Respiration rate (", mu, "gCO"[2], "-Cg"^"-1", "h"^"-1", ")"))) 
+ggarrange(plot_all_resp+ylim(-0.5,2),plot_all_resp_2+ylim(-0.5,2))
 ```
 
 ```{r}
