@@ -1040,28 +1040,42 @@ ggplot(filter(working_data, plant == plant_data$label[1]) , aes(x = origin_locat
 
 ## 4) Statistics
 
+ANOVA
+
 ```{r}
 library(tidyverse)
 library(agricolae)
 
-anova <- aov(Respiration_rate ~ plant * treatment * soil, data = filter(working_data)
+anova <- aov(Respiration_rate ~ plant * treatment * soil, data = working_data)
 summary(anova)
 
+```
+
+Normality check
+
+```{r}
 # Check assumptions (important!)
 # a. Normality of residuals
 plot(anova, 2) # Q-Q plot
 
+
+```
+
+Homoscedasticity
+
+```{r}
 # b. Homogeneity of variance (Levene's test)
 library(car)
 
 leveneTest(Respiration_rate ~ plant * treatment * soil, data = working_data)
 
+```
+
+Post-hoc test ( Tukey's adjusted p pairwise comparisons)
+
+```{r}
 # Example: Tukey for treatment, assuming it was significant in the ANOVA
-# HSD.test(working_data, "treatment", alpha=0.05)
-
-# length(unique(working_samples$sample)) # How many unique samples are present in the final dataset?
-unique(working_data$plant)
-
+HSD.test(working_data, "treatment", alpha=0.05)
 ```
 
 ```{r}
@@ -1071,4 +1085,9 @@ anova_faba_clay <- aov(Respiration_rate ~ treatment, data = faba_clay)
 summary(anova_faba_clay)
 ggplot(faba_clay, aes(y = Respiration_rate, x = treatment))+ 
 geom_boxplot()
+```
+
+```{r}
+aes(y = Respiration_rate, x = treatment)
+ggplot(faba_clay, aes())
 ```
