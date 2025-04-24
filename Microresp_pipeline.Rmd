@@ -1071,12 +1071,14 @@ leveneTest(Respiration_rate ~ plant * treatment * soil, data = working_data)
 
 ```
 
-Post-hoc test ( Tukey's adjusted p pairwise comparisons)
+Post-hoc test (Tukey's adjusted p pairwise comparisons)
 
 ```{r}
 # Example: Tukey for treatment, assuming it was significant in the ANOVA
 HSD.test(working_data, "treatment", alpha=0.05)
 ```
+
+Subsets
 
 ```{r}
 
