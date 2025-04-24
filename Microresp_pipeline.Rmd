@@ -1044,7 +1044,7 @@ ggplot(filter(working_data, plant == plant_data$label[1]) , aes(x = origin_locat
 library(tidyverse)
 library(agricolae)
 
-anova <- aov(Respiration_rate ~ plant * treatment * soil, data = working_data)
+anova <- aov(Respiration_rate ~ plant * treatment * soil, data = filter(working_data)
 summary(anova)
 
 # Check assumptions (important!)
@@ -1062,4 +1062,13 @@ leveneTest(Respiration_rate ~ plant * treatment * soil, data = working_data)
 # length(unique(working_samples$sample)) # How many unique samples are present in the final dataset?
 unique(working_data$plant)
 
+```
+
+```{r}
+
+faba_clay <- filter(working_data, soil == "Sandy not managed" & plant == "Faba bean")
+anova_faba_clay <- aov(Respiration_rate ~ treatment, data = faba_clay)
+summary(anova_faba_clay)
+ggplot(faba_clay, aes(y = Respiration_rate, x = treatment))+ 
+geom_boxplot()
 ```
